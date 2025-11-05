@@ -1,0 +1,353 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Gestion Comptes Bancaires",
+        "description": "API RESTful pour la gestion des comptes bancaires et transactions. Cette API permet de gérer les comptes bancaires, les transactions, et les clients.",
+        "contact": {
+            "name": "Support API",
+            "email": "tapha.ednayas313@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Serveur de développement local"
+        },
+        {
+            "url": "https://senghor-fallou-gestion-comptes-api.onrender.com",
+            "description": "Serveur de production (Render)"
+        }
+    ],
+    "paths": {
+        "/api/v1/comptes": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Récupérer la liste des comptes",
+                "description": "Retourne une liste paginée des comptes bancaires avec possibilité de filtrage et tri",
+                "operationId": "getComptesList",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Numéro de la page (défaut: 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Nombre d'éléments par page (défaut: 10, max: 100)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Rechercher par titulaire ou numéro de compte",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": ""
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filtrer par type de compte",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "epargne",
+                                "cheque"
+                            ],
+                            "example": ""
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Champ de tri (défaut: created_at)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "created_at",
+                                "titulaire",
+                                "solde",
+                                "statut"
+                            ],
+                            "example": "created_at"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Ordre de tri (défaut: desc)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ],
+                            "example": "desc"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des comptes récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Comptes récupérés avec succès."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Compte"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "currentPage": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "totalPages": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "totalItems": {
+                                                    "type": "integer",
+                                                    "example": 48
+                                                },
+                                                "itemsPerPage": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "hasNext": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "hasPrevious": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "links": {
+                                            "properties": {
+                                                "self": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/api/v1/comptes?page=1&limit=10"
+                                                },
+                                                "next": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/api/v1/comptes?page=2&limit=10"
+                                                },
+                                                "previous": {
+                                                    "type": "string",
+                                                    "example": null,
+                                                    "nullable": true
+                                                },
+                                                "first": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/api/v1/comptes?page=1&limit=10"
+                                                },
+                                                "last": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/api/v1/comptes?page=5&limit=10"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred while fetching comptes."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Compte": {
+                "title": "Compte Bancaire",
+                "description": "Représentation d'un compte bancaire",
+                "properties": {
+                    "id": {
+                        "description": "Identifiant unique du compte",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "2a7f99ac-0e3e-458a-a3ff-bbc55f0553d1"
+                    },
+                    "numeroCompte": {
+                        "description": "Numéro du compte",
+                        "type": "string",
+                        "example": "CPT-2025-ORFMS"
+                    },
+                    "titulaire": {
+                        "description": "Nom du titulaire du compte",
+                        "type": "string",
+                        "example": "Adams Juliana"
+                    },
+                    "type": {
+                        "description": "Type de compte",
+                        "type": "string",
+                        "enum": [
+                            "epargne",
+                            "cheque"
+                        ],
+                        "example": "cheque"
+                    },
+                    "solde": {
+                        "description": "Solde actuel du compte",
+                        "type": "number",
+                        "format": "float",
+                        "example": 72366.69
+                    },
+                    "devise": {
+                        "description": "Devise du compte",
+                        "type": "string",
+                        "example": "XOF"
+                    },
+                    "dateCreation": {
+                        "description": "Date de création du compte",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-11-03T19:29:36.000000Z"
+                    },
+                    "statut": {
+                        "description": "Statut du compte",
+                        "type": "string",
+                        "enum": [
+                            "actif",
+                            "bloque",
+                            "ferme"
+                        ],
+                        "example": "actif"
+                    },
+                    "clientId": {
+                        "description": "Identifiant du client propriétaire",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "a4c4c2b7-3a22-4512-9121-165b63d96445"
+                    },
+                    "informations_blocage": {
+                        "description": "Informations de blocage pour les comptes épargne bloqués",
+                        "properties": {
+                            "motifBlocage": {
+                                "type": "string",
+                                "example": "Inactivité prolongée"
+                            },
+                            "dateBlocage": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2025-11-04T18:37:42.286Z",
+                                "nullable": true
+                            },
+                            "dateDeblocagePrevue": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2025-12-04T18:37:42.286Z",
+                                "nullable": true
+                            },
+                            "motifDeblocage": {
+                                "type": "string",
+                                "example": "Fin de période",
+                                "nullable": true
+                            },
+                            "dateDeblocage": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2025-12-04T18:37:42.286Z",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "metadata": {
+                        "description": "Métadonnées personnalisées du compte",
+                        "properties": {
+                            "derniere_modification": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2025-11-03T19:29:36.348032Z"
+                            },
+                            "version": {
+                                "type": "integer",
+                                "example": 1
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Authentification via Bearer Token",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Comptes",
+            "description": "Gestion des comptes bancaires"
+        }
+    ]
+}
